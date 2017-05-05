@@ -1,0 +1,9 @@
+name: pico_container
+version: 0.1.0
+
+authors:
+  - Alexandru Keszeg <namlessone@gmail.com>
+
+crystal: 0.22.0
+
+license: MIT
