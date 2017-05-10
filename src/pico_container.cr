@@ -15,20 +15,17 @@ module PicoContainer
     # this allows us to inject an interface and configure the
     # specific class in the final container
     {% if CONTAINER_OPTIONS[:initialized] %}
-      \{% for field in FIELDS %}
-         def create(t : \{{field[:t]}}.class)
-           \{% for deps in field[:deps]%}
-              # namespace separator "::" is not valid in variable names
-              _\{{deps.resolve.name.downcase.tr("::", "_")}} = create(\{{deps}})
-           \{% end %}
-
-           @\{{field[:t].name.downcase.tr("::", "_")}} ||= \{{field[:t]}}.new(
-             \{% for deps in field[:deps]%}
-                _\{{deps.resolve.name.downcase.tr("::", "_")}},
-           \{% end %}
+      {% for field in FIELDS %}
+         def create(t : {{field[:t]}}.class){% if field[:t].type_vars.size > 0 %} forall {{field[:t].type_vars.first}} {% end %}
+           # Generic classes can't be assigned to instance variables:
+           # can't infer the type of instance variable '@__temp_49'
+           {% if  field[:t].type_vars.size == 0 %}@%name{field} ||= {% end %} \
+           {{field[:t]}}.new(
+             {% for deps in field[:deps]%}create({{deps}}),
+             {% end %}
            )
          end
-      \{% end %}
+      {% end %}
     {% end %}
   end
 end
